@@ -1,0 +1,433 @@
+{
+  "id": "calcMachine",
+  "initial": "start",
+  "states": {
+    "start": {
+      "on": {
+        "NUMBER": [
+          {
+            "target": "#calcMachine.operand1.zero",
+            "cond": "isZero",
+            "actions": {
+              "params": {},
+              "type": "defaultReadout"
+            }
+          },
+          {
+            "target": "#calcMachine.operand1.before_decimal_point",
+            "cond": "isNotZero",
+            "actions": {
+              "params": {},
+              "type": "setReadoutNum"
+            }
+          }
+        ],
+        "OPERATOR": {
+          "target": "negative_number",
+          "cond": "isMinus",
+          "actions": {
+            "params": {},
+            "type": "startNegativeNumber"
+          }
+        },
+        "DECIMAL_POINT": {
+          "target": "#calcMachine.operand1.after_decimal_point",
+          "actions": {
+            "params": {},
+            "type": "defaultReadout"
+          }
+        }
+      }
+    },
+    "negative_number": {
+      "on": {
+        "NUMBER": [
+          {
+            "target": "#calcMachine.operand1.zero",
+            "cond": "isZero",
+            "actions": {
+              "params": {},
+              "type": "defaultNegativeReadout"
+            }
+          },
+          {
+            "target": "#calcMachine.operand1.before_decimal_point",
+            "cond": "isNotZero",
+            "actions": {
+              "params": {},
+              "type": "setNegativeReadoutNum"
+            }
+          }
+        ],
+        "DECIMAL_POINT": {
+          "target": "#calcMachine.operand1.after_decimal_point",
+          "actions": {
+            "params": {},
+            "type": "defaultNegativeReadout"
+          }
+        },
+        "CLEAR_ENTRY": {
+          "target": "start",
+          "actions": {
+            "params": {},
+            "type": "defaultReadout"
+          }
+        }
+      }
+    },
+    "operand1": {
+      "initial": "zero",
+      "states": {
+        "zero": {
+          "on": {
+            "NUMBER": {
+              "target": "before_decimal_point",
+              "actions": {
+                "params": {},
+                "type": "setReadoutNum"
+              }
+            },
+            "DECIMAL_POINT": {
+              "target": "after_decimal_point"
+            }
+          }
+        },
+        "before_decimal_point": {
+          "on": {
+            "NUMBER": {
+              "target": "before_decimal_point",
+              "actions": {
+                "params": {},
+                "type": "appendNumBeforeDecimal"
+              },
+              "internal": false
+            },
+            "DECIMAL_POINT": {
+              "target": "after_decimal_point"
+            }
+          }
+        },
+        "after_decimal_point": {
+          "on": {
+            "NUMBER": {
+              "target": "after_decimal_point",
+              "actions": {
+                "params": {},
+                "type": "appendNumAfterDecimal"
+              },
+              "internal": false
+            }
+          }
+        }
+      },
+      "on": {
+        "OPERATOR": {
+          "target": "operator_entered",
+          "actions": {
+            "params": {},
+            "type": "recordOperator"
+          }
+        },
+        "PERCENTAGE": {
+          "target": "result",
+          "actions": [
+            {
+              "params": {},
+              "type": "storeResultAsOperand2"
+            },
+            {
+              "params": {},
+              "type": "computePercentage"
+            }
+          ]
+        },
+        "CLEAR_ENTRY": {
+          "target": "operand1",
+          "actions": {
+            "params": {},
+            "type": "defaultReadout"
+          },
+          "internal": false
+        }
+      }
+    },
+    "operator_entered": {
+      "on": {
+        "OPERATOR": [
+          {
+            "target": "operator_entered",
+            "cond": "isNotMinus",
+            "actions": {
+              "params": {},
+              "type": "setOperator"
+            },
+            "internal": false
+          },
+          {
+            "target": "negative_number_2",
+            "cond": "isMinus",
+            "actions": {
+              "params": {},
+              "type": "startNegativeNumber"
+            }
+          }
+        ],
+        "NUMBER": [
+          {
+            "target": "#calcMachine.operand2.zero",
+            "cond": "isZero",
+            "actions": [
+              {
+                "params": {},
+                "type": "defaultReadout"
+              },
+              {
+                "params": {},
+                "type": "saveOperand2"
+              }
+            ]
+          },
+          {
+            "target": "#calcMachine.operand2.before_decimal_point",
+            "cond": "isNotZero",
+            "actions": [
+              {
+                "params": {},
+                "type": "setReadoutNum"
+              },
+              {
+                "params": {},
+                "type": "saveOperand2"
+              }
+            ]
+          }
+        ],
+        "DECIMAL_POINT": {
+          "target": "#calcMachine.operand2.after_decimal_point",
+          "actions": {
+            "params": {},
+            "type": "defaultReadout"
+          }
+        }
+      }
+    },
+    "operand2": {
+      "initial": "zero",
+      "states": {
+        "zero": {
+          "on": {
+            "NUMBER": {
+              "target": "before_decimal_point",
+              "actions": {
+                "params": {},
+                "type": "setReadoutNum"
+              }
+            },
+            "DECIMAL_POINT": {
+              "target": "after_decimal_point"
+            }
+          }
+        },
+        "before_decimal_point": {
+          "on": {
+            "NUMBER": {
+              "target": "before_decimal_point",
+              "actions": {
+                "params": {},
+                "type": "appendNumBeforeDecimal"
+              },
+              "internal": false
+            },
+            "DECIMAL_POINT": {
+              "target": "after_decimal_point"
+            }
+          }
+        },
+        "after_decimal_point": {
+          "on": {
+            "NUMBER": {
+              "target": "after_decimal_point",
+              "actions": {
+                "params": {},
+                "type": "appendNumAfterDecimal"
+              },
+              "internal": false
+            }
+          }
+        }
+      },
+      "on": {
+        "OPERATOR": [
+          {
+            "target": "operator_entered",
+            "cond": "notDivideByZero",
+            "actions": [
+              {
+                "params": {},
+                "type": "storeResultAsOperand2"
+              },
+              {
+                "params": {},
+                "type": "compute"
+              },
+              {
+                "params": {},
+                "type": "storeResultAsOperand1"
+              },
+              {
+                "params": {},
+                "type": "setOperator"
+              }
+            ]
+          },
+          {
+            "target": "alert"
+          }
+        ],
+        "EQUALS": [
+          {
+            "target": "result",
+            "cond": "notDivideByZero",
+            "actions": [
+              {
+                "params": {},
+                "type": "storeResultAsOperand2"
+              },
+              {
+                "params": {},
+                "type": "compute"
+              }
+            ]
+          },
+          {
+            "target": "alert"
+          }
+        ],
+        "CLEAR_ENTRY": {
+          "target": ".zero",
+          "actions": {
+            "params": {},
+            "type": "defaultReadout"
+          },
+          "internal": false
+        }
+      }
+    },
+    "negative_number_2": {
+      "on": {
+        "NUMBER": [
+          {
+            "target": "#calcMachine.operand2.zero",
+            "cond": "isZero",
+            "actions": {
+              "params": {},
+              "type": "defaultNegativeReadout"
+            }
+          },
+          {
+            "target": "#calcMachine.operand2.before_decimal_point",
+            "cond": "isNotZero",
+            "actions": {
+              "params": {},
+              "type": "setNegativeReadoutNum"
+            }
+          }
+        ],
+        "DECIMAL_POINT": {
+          "target": "#calcMachine.operand2.after_decimal_point",
+          "actions": {
+            "params": {},
+            "type": "defaultNegativeReadout"
+          }
+        },
+        "CLEAR_ENTRY": {
+          "target": "operator_entered",
+          "actions": {
+            "params": {},
+            "type": "defaultReadout"
+          }
+        }
+      }
+    },
+    "result": {
+      "on": {
+        "NUMBER": [
+          {
+            "target": "operand1",
+            "cond": "isZero",
+            "actions": {
+              "params": {},
+              "type": "defaultReadout"
+            }
+          },
+          {
+            "target": "#calcMachine.operand1.before_decimal_point",
+            "cond": "isNotZero",
+            "actions": {
+              "params": {},
+              "type": "setReadoutNum"
+            }
+          }
+        ],
+        "PERCENTAGE": {
+          "target": "result",
+          "actions": [
+            {
+              "params": {},
+              "type": "storeResultAsOperand2"
+            },
+            {
+              "params": {},
+              "type": "computePercentage"
+            }
+          ],
+          "internal": false
+        },
+        "OPERATOR": {
+          "target": "operator_entered",
+          "actions": [
+            {
+              "params": {},
+              "type": "storeResultAsOperand1"
+            },
+            {
+              "params": {},
+              "type": "recordOperator"
+            }
+          ]
+        },
+        "CLEAR_ENTRY": {
+          "target": "start",
+          "actions": {
+            "params": {},
+            "type": "defaultReadout"
+          }
+        }
+      }
+    },
+    "alert": {
+      "invoke": {
+        "src": "calcMachine.alert:invocation[0]",
+        "onDone": [
+          {
+            "target": "start",
+            "actions": {
+              "params": {},
+              "type": "reset"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "on": {
+    "CLEAR_EVERYTHING": {
+      "target": ".start",
+      "actions": {
+        "params": {},
+        "type": "reset"
+      },
+      "internal": true
+    }
+  }
+}

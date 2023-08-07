@@ -1,0 +1,132 @@
+{
+  "id": "Helper Server",
+  "initial": "awaitPairRequest",
+  "states": {
+    "awaitPairRequest": {
+      "on": {
+        "message pairRequest": [
+          {
+            "target": "awaitPairConfirm",
+            "cond": "acceptable",
+            "actions": {
+              "params": {},
+              "type": "signal pair.indication"
+            }
+          },
+          {
+            "target": "finished",
+            "actions": {
+              "params": {},
+              "type": "send pairReply (-)"
+            }
+          }
+        ]
+      }
+    },
+    "awaitPairConfirm": {
+      "on": {
+        "pair.confirm": [
+          {
+            "target": "serverPaired",
+            "cond": "success",
+            "actions": {
+              "params": {},
+              "type": "send PairReply(+)"
+            }
+          },
+          {
+            "target": "finished",
+            "actions": {
+              "params": {},
+              "type": "send pairReply(-)"
+            }
+          }
+        ]
+      }
+    },
+    "finished": {
+      "type": "final"
+    },
+    "serverPaired": {
+      "initial": "ready",
+      "states": {
+        "ready": {
+          "on": {
+            "message updateRequest": {
+              "target": "awaitUpdateResponse",
+              "actions": {
+                "params": {},
+                "type": "signal update.indication"
+              }
+            }
+          }
+        },
+        "awaitUpdateResponse": {
+          "on": {
+            "update.response(+/-)": {
+              "target": "ready",
+              "actions": {
+                "params": {},
+                "type": "send updateReply(+/-)"
+              }
+            },
+            "message updateRequest": {
+              "internal": true
+            }
+          }
+        }
+      },
+      "on": {
+        "message unpairRequest": {
+          "target": "finished",
+          "actions": [
+            {
+              "params": {},
+              "type": "send unpairReply"
+            },
+            {
+              "params": {},
+              "type": "signal upair.indication"
+            }
+          ]
+        },
+        "unpair.request": {
+          "target": "unpairWaiting"
+        },
+        "message syncRequest": {
+          "target": "serverPaired",
+          "actions": {
+            "params": {},
+            "type": "send syncReply"
+          },
+          "internal": false
+        }
+      }
+    },
+    "unpairWaiting": {
+      "on": {
+        "message updateRequest": {
+          "target": "finished",
+          "actions": {
+            "params": {},
+            "type": "send updateReply(closed)"
+          }
+        },
+        "message syncRequest": {
+          "target": "finished",
+          "actions": {
+            "params": {},
+            "type": "send syncReply(closed)"
+          }
+        },
+        "message unpairRequest": {
+          "target": "finished",
+          "actions": {
+            "params": {},
+            "type": "send unpairReply"
+          }
+        }
+      }
+    }
+  }
+}
